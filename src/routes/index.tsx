@@ -1,24 +1,74 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SiteLayout } from "@/components/SiteLayout";
+import bgDesktop from "@/assets/Home_Page_01_Desktop.jpg.asset.json";
+import bgMobile from "@/assets/Home_Page_01_Mobile.jpg.asset.json";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "ZMEJKA — Graphic & Motion Designer, Vilnius" },
+      {
+        name: "description",
+        content:
+          "Portfolio of Mantas Zmejauskas (ZMEJKA): bold brand identity, motion design, packaging and social campaigns from Vilnius, Lithuania.",
+      },
+      { property: "og:title", content: "ZMEJKA — Graphic & Motion Designer" },
+      {
+        property: "og:description",
+        content: "Clean, bold, creative visuals. Brand identity, motion design and packaging.",
+      },
+    ],
+  }),
+  component: Home,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Home() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <SiteLayout>
+      <section className="relative isolate flex min-h-[calc(100svh-73px)] items-center overflow-hidden">
+        <picture className="absolute inset-0 -z-10">
+          <source media="(min-width: 768px)" srcSet={bgDesktop.url} />
+          <img
+            src={bgMobile.url}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover"
+          />
+        </picture>
+        <div className="absolute inset-0 -z-10 bg-background/45" />
+
+        <div className="shell rise py-24">
+          <p className="eyebrow">Graphic &amp; Motion Designer · Vilnius</p>
+          <h1 className="mt-6 max-w-[16ch] uppercase">Let&apos;s create something new together</h1>
+          <p className="mt-6 max-w-[52ch] text-[1.15rem] text-muted-foreground">
+            Bold identities, motion that earns attention, and packaging built to production spec —
+            crafted since 2019 under the name ZMEJKA.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Link to="/about" className="btn-primary">
+              Who Am I?
+            </Link>
+            <Link to="/portfolio" className="btn-secondary">
+              See The Work
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-border py-20">
+        <div className="shell grid gap-10 sm:grid-cols-3">
+          {[
+            ["06+", "Years designing brands, motion and packaging"],
+            ["Shortlisted", "Lithuanian Design Association identity competition, 2020"],
+            ["Static + Motion", "A rare combination: system thinking that also moves"],
+          ].map(([k, v]) => (
+            <div key={k}>
+              <h4 className="uppercase">{k}</h4>
+              <p className="mt-2 text-muted-foreground">{v}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    </SiteLayout>
   );
 }
