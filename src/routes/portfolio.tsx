@@ -28,7 +28,6 @@ type Project = {
   discipline: string;
   overview: string;
   role: string;
-  tools: string;
   challenge: string;
   visualIdea: string;
   constraint: string;
