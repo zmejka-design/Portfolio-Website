@@ -90,8 +90,10 @@ function Icon({ name }: { name: string }) {
 }
 
 function Contact() {
-  const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
+  const [error, setError] = useState<string>("");
   const [picked, setPicked] = useState<string[]>([]);
+  const send = useServerFn(submitContact);
 
   const toggle = (s: string) =>
     setPicked((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
@@ -113,12 +115,37 @@ function Contact() {
         <div className="shell grid gap-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.7fr)]">
           <form
             className="space-y-5"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
+              const form = e.currentTarget;
+              const fd = new FormData(form);
               setStatus("submitting");
-              setTimeout(() => setStatus("done"), 900);
+              setError("");
+              try {
+                await send({
+                  data: {
+                    firstName: String(fd.get("first") ?? ""),
+                    lastName: String(fd.get("last") ?? ""),
+                    email: String(fd.get("email") ?? ""),
+                    message: String(fd.get("message") ?? ""),
+                    services: picked,
+                    newsletter: fd.get("newsletter") === "on",
+                  },
+                });
+                form.reset();
+                setPicked([]);
+                setStatus("done");
+              } catch (err) {
+                setStatus("error");
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please email me directly.",
+                );
+              }
             }}
           >
+
             <div className="grid gap-[10px] sm:grid-cols-2">
               <Field id="first" label="First Name" required autoComplete="given-name" />
               <Field id="last" label="Last Name" required autoComplete="family-name" />
