@@ -161,6 +161,9 @@ function Contact() {
               </label>
               <textarea
                 id="message"
+                name="message"
+                maxLength={2000}
+
                 required
                 rows={5}
                 className="field !rounded-3xl"
@@ -190,7 +193,7 @@ function Contact() {
             </fieldset>
 
             <label className="flex items-center gap-3 pt-2 text-sm text-muted-foreground">
-              <input type="checkbox" className="h-4 w-4 accent-white" />
+              <input type="checkbox" name="newsletter" className="h-4 w-4 accent-white" />
               Sign up for news and updates
             </label>
 
@@ -253,6 +256,9 @@ function Field({
       </label>
       <input
         id={id}
+        name={id}
+        maxLength={type === "email" ? 255 : 80}
+
         type={type}
         required={required}
         autoComplete={autoComplete}
