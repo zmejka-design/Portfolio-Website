@@ -197,12 +197,22 @@ function Contact() {
               Sign up for news and updates
             </label>
 
-            <button type="submit" className="btn-secondary mt-4" disabled={status === "submitting"}>
-              {status === "submitting" ? "Submitting" : status === "done" ? "Sent — Thank You" : "Submit"}
+            <button
+              type="submit"
+              className="btn-secondary mt-4 disabled:opacity-60"
+              disabled={status === "submitting"}
+            >
+              {status === "submitting"
+                ? "Submitting"
+                : status === "done"
+                  ? "Sent — Thank You"
+                  : "Submit"}
             </button>
-            <p aria-live="polite" className="text-sm text-muted-foreground">
+            <p aria-live="polite" role="status" className="text-sm text-muted-foreground">
               {status === "done" ? "Thanks! I'll reply to your email shortly." : ""}
+              {status === "error" ? error : ""}
             </p>
+
           </form>
 
           <aside>
