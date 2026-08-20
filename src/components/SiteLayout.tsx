@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState, type ReactNode } from "react";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -10,10 +10,36 @@ const nav = [
 
 export function SiteLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  // Close the mobile menu on navigation.
+  useEffect(() => setOpen(false), [pathname]);
+
+  // Escape to close + lock background scroll while the menu is open.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   return (
     <div className="flex min-h-screen flex-col">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-foreground focus:px-4 focus:py-2 focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
       <header className="sticky top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl">
+
         <div className="shell grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4">
           <Link to="/" className="min-w-0 font-display text-2xl font-extrabold tracking-[0.18em]">
             ZMEJKA

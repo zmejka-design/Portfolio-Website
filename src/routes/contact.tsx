@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { submitContact } from "@/lib/contact.functions";
+
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -90,8 +93,10 @@ function Icon({ name }: { name: string }) {
 }
 
 function Contact() {
-  const [status, setStatus] = useState<"idle" | "submitting" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
+  const [error, setError] = useState<string>("");
   const [picked, setPicked] = useState<string[]>([]);
+  const send = useServerFn(submitContact);
 
   const toggle = (s: string) =>
     setPicked((p) => (p.includes(s) ? p.filter((x) => x !== s) : [...p, s]));
@@ -113,12 +118,37 @@ function Contact() {
         <div className="shell grid gap-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.7fr)]">
           <form
             className="space-y-5"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
+              const form = e.currentTarget;
+              const fd = new FormData(form);
               setStatus("submitting");
-              setTimeout(() => setStatus("done"), 900);
+              setError("");
+              try {
+                await send({
+                  data: {
+                    firstName: String(fd.get("first") ?? ""),
+                    lastName: String(fd.get("last") ?? ""),
+                    email: String(fd.get("email") ?? ""),
+                    message: String(fd.get("message") ?? ""),
+                    services: picked,
+                    newsletter: fd.get("newsletter") === "on",
+                  },
+                });
+                form.reset();
+                setPicked([]);
+                setStatus("done");
+              } catch (err) {
+                setStatus("error");
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : "Something went wrong. Please email me directly.",
+                );
+              }
             }}
           >
+
             <div className="grid gap-[10px] sm:grid-cols-2">
               <Field id="first" label="First Name" required autoComplete="given-name" />
               <Field id="last" label="Last Name" required autoComplete="family-name" />
@@ -131,6 +161,9 @@ function Contact() {
               </label>
               <textarea
                 id="message"
+                name="message"
+                maxLength={2000}
+
                 required
                 rows={5}
                 className="field !rounded-3xl"
@@ -160,16 +193,26 @@ function Contact() {
             </fieldset>
 
             <label className="flex items-center gap-3 pt-2 text-sm text-muted-foreground">
-              <input type="checkbox" className="h-4 w-4 accent-white" />
+              <input type="checkbox" name="newsletter" className="h-4 w-4 accent-white" />
               Sign up for news and updates
             </label>
 
-            <button type="submit" className="btn-secondary mt-4" disabled={status === "submitting"}>
-              {status === "submitting" ? "Submitting" : status === "done" ? "Sent — Thank You" : "Submit"}
+            <button
+              type="submit"
+              className="btn-secondary mt-4 disabled:opacity-60"
+              disabled={status === "submitting"}
+            >
+              {status === "submitting"
+                ? "Submitting"
+                : status === "done"
+                  ? "Sent — Thank You"
+                  : "Submit"}
             </button>
-            <p aria-live="polite" className="text-sm text-muted-foreground">
+            <p aria-live="polite" role="status" className="text-sm text-muted-foreground">
               {status === "done" ? "Thanks! I'll reply to your email shortly." : ""}
+              {status === "error" ? error : ""}
             </p>
+
           </form>
 
           <aside>
@@ -223,6 +266,9 @@ function Field({
       </label>
       <input
         id={id}
+        name={id}
+        maxLength={type === "email" ? 255 : 80}
+
         type={type}
         required={required}
         autoComplete={autoComplete}
