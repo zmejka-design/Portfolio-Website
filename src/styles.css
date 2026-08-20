@@ -27,9 +27,16 @@
   --primary: oklch(1 0 0);
   --primary-foreground: oklch(0.145 0 0);
   --site-margin: 4vw;
+  --header-h: 73px;
 }
 
 @layer base {
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -99,7 +106,7 @@
   text-transform: capitalize;
   border-radius: 999px;
   border: 2px solid var(--foreground);
-  padding: 0.6rem 1.6rem;
+  padding: 0.75rem 1.6rem;
   transition:
     background-color 0.35s ease,
     color 0.35s ease,
@@ -122,7 +129,8 @@
   border-radius: 999px;
   background: var(--foreground);
   color: var(--primary-foreground);
-  padding: 0.9rem 1.6rem;
+  border: 2px solid var(--foreground);
+  padding: 0.75rem 1.6rem;
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
